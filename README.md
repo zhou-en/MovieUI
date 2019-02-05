@@ -12,3 +12,5 @@ Movie database interface built by scraping movie ratings and posters.
     * option: `-p` - search all movies in the given path
 ### Frontend
 #### React components
+* Search
+   * fields: title, year, rating
