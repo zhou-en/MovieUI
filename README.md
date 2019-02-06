@@ -3,7 +3,7 @@ Movie database interface built by scraping movie ratings and posters.
 
 ## TODO:
 ### Site Name:
-My Movie Hub
+**My Movie Hub**
 ### Apps
 #### Movie
 * define **movie** model
