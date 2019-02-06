@@ -1,9 +1,7 @@
-# MovieUI
+# My Movie Hub
 Movie database interface built by scraping movie ratings and posters.
 
 ## TODO:
-### Site Name:
-**My Movie Hub**
 ### Apps
 #### Movie
 * define **movie** model
