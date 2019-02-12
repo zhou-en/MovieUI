@@ -20,5 +20,5 @@ from movie.views import MovieListCreate, GenreListCreate
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/movie/', MovieListCreate.as_view()),
-    path('api/genre/', GenreListCreate.as_view())
+    path('api/genre/', GenreListCreate.as_view()),
 ]

@@ -73,7 +73,6 @@ class MovieCrawler(object):
 
         year = f"{title_and_year[-1]}"
         series = title_and_year[-2]
-        title = ""
         if series.isdigit():
             title = title_and_year[:-2]
         else:
@@ -86,12 +85,21 @@ class MovieCrawler(object):
             not title_and_year[-1].isdigit()
         ):
             print("\nERROR: Invalid movie name: No year info was found\n")
-            title_and_year = []
 
         self.year = year
         self.title = title
         self.series = series
         # return " ".join(title), series, year
+
+    def get_resolution_from_filename(self):
+        """
+        :return:
+        """
+        if '1080p' in self.filename:
+            return '1080p'
+        if '720p' in self.filename:
+            return '720p'
+        return ''
 
     def search_movie(self):
         """[summary]
@@ -115,6 +123,11 @@ class MovieCrawler(object):
         if result:
             movie_href = result.find(href=True).get("href", None)
             self.imdb_movie_url = "http://www.imdb.com" + movie_href
+    #
+    # def get_trailer_address_from_html_reponse(self):
+    #     """
+    #     :return:
+    #     """
 
     def get_imdb_id_from_url(self):
         """[summary]
@@ -166,20 +179,53 @@ class MovieCrawler(object):
                 print(err)
                 continue
 
-    def save_movie():
-        """[summary]
-        """
-        Movie(
-            **{
-                ''
+    # def get_genres_from_list_data(self, geners):
+    #     """
+    #     :param geners:
+    #     :return:
+    #     """
+    #     for gener in geners:
+    #         if not Genre.objects.filter(name=gener['name']):
+    #             Genre(**{
+    #                 'name': gener['name']
+    #             }).save()
+    #         return []
 
-            }
-        ).save()
+    def save_movie(self):
+        # """[summary]
+        # """
+        homepage = self.imdb_movie_url if self.movie_data.get('homepage') == 'null'
+        try:
+            Movie(
+                **{
+                    'title': self.movie_data.get('title', None),
+                    'release_date': self.movie_data.get('release_date', None),
+                    'runtime': self.movie_data.get('runtime', None),
+                    'poster_path': (
+                        f"https://image.tmdb.org/t/p/w500"
+                        f"{self.movie_data.get('poster_path', None)}"
+                    ),
+                    'overview': self.movie_data.get('overview', None),
+                    'imdb_id': self.movie_data.get('imdb_id', None),
+                    'imdb_rating': self.movie_data.get('vote_average', None),
+                    'imdb_movie_url': self.imdb_movie_url,
+                    'homepage': homepage,
+                    # 'trailer': self.
+                    # 'geners:
+                    'resolution': self.get_resolution_from_filename(),
+                    'filename': self.filename
+
+                }
+            ).save()
+        except Exception as err:
+            print(f'Save failed: {err}')
+        else:
+            print(f'Saved successfully.')
 
     def crawl_movie(self):
         """[summary]
         """
-        if not Movie.objects.filter(filename__startwith=f'{self.filename}'):
+        if not Movie.objects.filter(filename__startswith=f'{self.filename}'):
             print(f"Starting crawling movie: {self.filename}")
             self.parse_filename()
             self.search_movie()
@@ -187,6 +233,8 @@ class MovieCrawler(object):
             self.get_imdb_id_from_url()
             self.get_movie_details_by_id()
             self.get_movie_rating_by_url()
-            print(self.imdb_rating)
             print(json.dumps(self.movie_data, indent=4))
             self.save_movie()
+            print(self.imdb_rating)
+        else:
+            print(f'This movie is saved in the database.')
