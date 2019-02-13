@@ -194,7 +194,7 @@ class MovieCrawler(object):
     def save_movie(self):
         # """[summary]
         # """
-        homepage = self.imdb_movie_url if self.movie_data.get('homepage') == 'null'
+        homepage = self.imdb_movie_url if not self.movie_data.get('homepage') else self.movie_data.get('homepage')
         try:
             Movie(
                 **{
