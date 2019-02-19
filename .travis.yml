@@ -9,5 +9,5 @@ install:
 
 script:
     # - python ./movie_ui/manage.py test
-    - coverage run --source='./movie' manage.py test --traceback --debug-mode
+    - coverage run --source="." manage.py test --traceback --debug-mode
 
