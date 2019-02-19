@@ -1,4 +1,7 @@
 # My Movie Hub
+[![Build
+Status](https://travis-ci.org/zhou-en/MovieUI.svg?branch=develop)](https://travis-ci.org/zhou-en/MovieUI)
+
 Movie database interface built by scraping movie ratings and posters.
 
 ## TODO:
