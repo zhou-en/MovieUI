@@ -1,6 +1,7 @@
 movie_ui/movies/migrations/
 movie_ui.iml
 .idea/
+.vscode/
 
 
 # Byte-compiled / optimized / DLL files

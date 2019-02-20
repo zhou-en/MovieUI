@@ -13,11 +13,11 @@ def is_good_response(resp):
     """
     Returns true if the response seems to be HTML, false otherwise
     """
-    content_type = resp.headers['Content-Type'].lower()
+    content_type = resp.headers["Content-Type"].lower()
     return (
         resp.status_code == 200
         and content_type is not None
-        and content_type.find('html') > -1
+        and content_type.find("html") > -1
     )
 
 
@@ -81,8 +81,8 @@ class MovieCrawler(object):
 
         # In the case there is no year info in the name
         if (
-            len(title_and_year) == len(self.filename.split(".")) and
-            not title_and_year[-1].isdigit()
+            len(title_and_year) == len(self.filename.split("."))
+            and not title_and_year[-1].isdigit()
         ):
             print("\nERROR: Invalid movie name: No year info was found\n")
 
@@ -95,21 +95,20 @@ class MovieCrawler(object):
         """
         :return:
         """
-        if '1080p' in self.filename:
-            return '1080p'
-        if '720p' in self.filename:
-            return '720p'
-        return ''
+        if "1080p" in self.filename:
+            return "1080p"
+        if "720p" in self.filename:
+            return "720p"
+        return ""
 
     def search_movie(self):
         """[summary]
         """
-        search_title = \
-            f"{self.title} {self.series}" if self.series else f"{self.title}"
+        search_title = f"{self.title} {self.series}" if self.series else f"{self.title}"
         url = (
-            f"http://www.imdb.com/search/title?title={search_title}&" +
-            f"title_type=feature&release_date=" +
-            f"{self.year}-01-01,{self.year}-12-31"
+            f"http://www.imdb.com/search/title?title={search_title}&"
+            + f"title_type=feature&release_date="
+            + f"{self.year}-01-01,{self.year}-12-31"
         )
         # logger.info("Get movie url from {}".format(url))
         # logger.info("Searching for movie: {}".format(url))
@@ -123,6 +122,7 @@ class MovieCrawler(object):
         if result:
             movie_href = result.find(href=True).get("href", None)
             self.imdb_movie_url = "http://www.imdb.com" + movie_href
+
     #
     # def get_trailer_address_from_html_reponse(self):
     #     """
@@ -146,8 +146,7 @@ class MovieCrawler(object):
         production_countries: list of dictionary
         original_language: string
         """
-        url = \
-            f"{settings.TMDB_HOST}/3/movie/{self.imdb_id}?api_key={settings.TMDB_API_KEY}&format=json"
+        url = f"{settings.TMDB_HOST}/3/movie/{self.imdb_id}?api_key={settings.TMDB_API_KEY}&format=json"
         print("Send GET request: {}".format(url))
         self.movie_data = requests.get(url).json()
         # TODO: 3. Get poster: https://image.tmdb.org/t/p/w500/{poster_path}
@@ -160,21 +159,21 @@ class MovieCrawler(object):
         # logger.info("Get movie rating from: {}".format(url))
         doc = simple_get(self.imdb_movie_url)
         soup = BeautifulSoup(doc, "html.parser")
-        rating_div = soup.find('span', {"itemprop": 'ratingValue'})
+        rating_div = soup.find("span", {"itemprop": "ratingValue"})
         rating_str = str(rating_div)
         # if verify:
         #     verify_searched_results(url, soup)
         # Get rating
-        self.imdb_rating = rating_str.replace('</span>', "").split(">")[-1]
+        self.imdb_rating = float(rating_str.replace("</span>", "").split(">")[-1])
         # logger.info("Movie Rating: {}".format(rating))
         # return rating
 
     def save_genres(self):
         """[summary]
         """
-        for genre in self.movie_data['genres']:
+        for genre in self.movie_data["genres"]:
             try:
-                Genre(**{'name': genre['name']}).save()
+                Genre(**{"name": genre["name"]}).save()
             except Exception as err:
                 print(err)
                 continue
@@ -194,38 +193,59 @@ class MovieCrawler(object):
     def save_movie(self):
         # """[summary]
         # """
-        homepage = self.imdb_movie_url if not self.movie_data.get('homepage') else self.movie_data.get('homepage')
+        homepage = (
+            self.imdb_movie_url
+            if not self.movie_data.get("homepage")
+            else self.movie_data.get("homepage")
+        )
+        rating = (
+            self.imdb_rating
+            if self.imdb_rating
+            else float(self.movie_data.get("vote_average", None))
+        )
         try:
             Movie(
                 **{
-                    'title': self.movie_data.get('title', None),
-                    'release_date': self.movie_data.get('release_date', None),
-                    'runtime': self.movie_data.get('runtime', None),
-                    'poster_path': (
+                    "title": self.movie_data.get("title", None),
+                    "release_date": self.movie_data.get("release_date", None),
+                    "runtime": self.movie_data.get("runtime", None),
+                    "poster_path": (
                         f"https://image.tmdb.org/t/p/w500"
                         f"{self.movie_data.get('poster_path', None)}"
                     ),
-                    'overview': self.movie_data.get('overview', None),
-                    'imdb_id': self.movie_data.get('imdb_id', None),
-                    'imdb_rating': self.movie_data.get('vote_average', None),
-                    'imdb_movie_url': self.imdb_movie_url,
-                    'homepage': homepage,
+                    "overview": self.movie_data.get("overview", None),
+                    "imdb_id": self.movie_data.get("imdb_id", None),
+                    "imdb_rating": rating,
+                    "imdb_movie_url": self.imdb_movie_url,
+                    "homepage": homepage,
                     # 'trailer': self.
                     # 'geners:
-                    'resolution': self.get_resolution_from_filename(),
-                    'filename': self.filename
-
+                    "resolution": self.get_resolution_from_filename(),
+                    "filename": self.filename,
                 }
             ).save()
         except Exception as err:
-            print(f'Save failed: {err}')
+            if "UNIQUE constraint failed: movie_movie.imdb_id" in str(err):
+                movie = Movie.objects.get(imdb_id=self.imdb_id)
+                import ipdb
+
+                ipdb.set_trace()
+                if self.imdb_rating != movie.imdb_rating:
+                    Movie.objects.filter(imdb_id=self.imdb_id).update(
+                        **{"imdb_rating": self.imdb_rating}
+                    )
+                    print(f"{movie.title}'s rating was updated to {self.imdb_rating}")
+                else:
+                    print(f"{movie.title}'s rating is till: {movie.imdb_rating}")
+            else:
+                raise Exception(err)
         else:
-            print(f'Saved successfully.')
+            print(f"Saved successfully.")
 
     def crawl_movie(self):
         """[summary]
         """
-        if not Movie.objects.filter(filename__startswith=f'{self.filename}'):
+        if not Movie.objects.filter(filename__startswith=f"{self.filename}"):
             print(f"Starting crawling movie: {self.filename}")
             self.parse_filename()
             self.search_movie()
@@ -235,6 +255,11 @@ class MovieCrawler(object):
             self.get_movie_rating_by_url()
             print(json.dumps(self.movie_data, indent=4))
             self.save_movie()
-            print(self.imdb_rating)
         else:
-            print(f'This movie is saved in the database.')
+            print(f"This movie is saved in the database.")
+            print(
+                Movie.objects.filter(filename__startswith=f"{self.filename}")[
+                    0
+                ].imdb_rating
+            )
+
