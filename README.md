@@ -6,6 +6,7 @@ Status](https://travis-ci.org/zhou-en/MovieUI.svg?branch=develop)](https://travi
 Movie database interface built by scraping movie ratings and posters.
 
 ## TODOs
+The following ToDos need to be fleshed out and create cards on the [MovieUI board](https://github.com/zhou-en/MovieUI/projects/1)
 
 ### Backend (Django + SQL lite)
 
