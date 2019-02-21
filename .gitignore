@@ -1,7 +1,9 @@
 movie_ui/movies/migrations/
-
+movie_ui.iml
 .idea/
-
+.vscode/
+node_modules/
+package-lock.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
