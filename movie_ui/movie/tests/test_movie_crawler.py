@@ -1,7 +1,6 @@
 from django.test import TestCase
 
 from movie.utils.movie_crawler import MovieCrawler
-# Create your tests here.
 
 
 class MovieCrawlerTest(TestCase):
