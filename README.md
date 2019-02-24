@@ -6,15 +6,16 @@ Status](https://travis-ci.org/zhou-en/MovieUI.svg?branch=develop)](https://travi
 Movie database interface built by scraping movie ratings and posters.
 
 ## Development Flow
-1. Add ideas to the TODOs list in this file
-2. Flesh out each TODO into cards in the project board
-3. Create a branch with the card name off `develop` branch
-4. Create a PR once the card is completed
-5. Merge the PR to `develop` after review
-6. Merge `develop` to `master` accordingly
+1. Add ideas to the **To do** column in the project board
+2. Flesh out each card/note in the project board
+3. Convert cards/notes into issue when start working on it.
+4. Create a branch with the card name off `develop` branch
+5. Create a PR once the card is completed
+6. Merge the PR to `develop` after review
+7. Merge `develop` to `master` accordingly
 
 ## TODOs
-The following ToDos need to be fleshed out and create cards on the [MovieUI board](https://github.com/zhou-en/MovieUI/projects/3)
+The following ToDos need to be fleshed out and create cards on the [MovieUI board](https://github.com/users/zhou-en/projects/3)
 
 ### Backend (Django + SQL lite)
 

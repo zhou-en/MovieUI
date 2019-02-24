@@ -47,8 +47,9 @@ class MovieCrawler(object):
         3. save the API response to database
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, path):
         self.filename = filename
+        self.path = path
         self.title = None
         self.year = None
         self.series = None
@@ -56,6 +57,12 @@ class MovieCrawler(object):
         self.imdb_movie_url = None
         self.imdb_id = None
         self.imdb_rating = None
+
+    def get_file_list_from_path(self):
+        """
+        :return:
+        """
+        pass
 
     def parse_filename(self):
         """
