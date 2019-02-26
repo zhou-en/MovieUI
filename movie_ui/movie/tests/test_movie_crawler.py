@@ -90,12 +90,46 @@ class MovieCrawlerTest(TestCase):
         testing_movie_id = 'tt2245084'
         movie_details = mc.get_movie_details_by_id(imdb_id=testing_movie_id)
         expected_details = EXPECTED_DETIALS
-        self.assertDictEqual(
-            movie_details,
-            expected_details,
-            f"Expected movie details: {expected_details}, "
+        self.assertEqual(
+            movie_details['title'],
+            expected_details['title'],
+            f"Expected movie title: {expected_details}, "
             f"but got: {movie_details}"
         )
+        self.assertEqual(
+            movie_details['homepage'],
+            expected_details['homepage'],
+            f"Expected movie homepage: {expected_details}, "
+            f"but got: {movie_details}"
+        )
+
+    def test_chinese_characters_in_file_name(self):
+        """
+        :return:
+        """
+        test_cases= [
+            {
+                'filename': '这儿还有中文.Over.the.Hedge.2006.森林保卫战.双语字幕.英瑞芬三音轨.HR-HDTV.1024X576.AC3.X264-人人影视制作',
+                'expected': ['这儿还有中文', '森林保卫战', '双语字幕', '英瑞芬三音轨', '人人影视制作']
+            },
+            {
+                'filename': 'Rio.2011.里约大冒险.双语字幕.HR-HDTV.AC3.1024X576.x264-人人影视制作',
+                'expected': ['里约大冒险', '双语字幕', '人人影视制作']
+            },
+            {
+                'filename': 'Toy.Story.I.1995.1080p.BluRay.x264.DTS-WiKi',
+                'expected': []
+            }
+        ]
+        mc = MovieCrawler()
+        for test in test_cases:
+            chinese = mc.chinese_characters_in_file_name(test['filename'])
+            self.assertEqual(
+                chinese,
+                test['expected'],
+                f"Expected filename: {test['expected']}, "
+                f"but got: {chinese}"
+            )
 
 
 EXPECTED_DETIALS = {
