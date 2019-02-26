@@ -8,6 +8,6 @@ install:
     - pip install -r requirements.txt
 
 script:
-    # - python ./movie_ui/manage.py test
-    - coverage run --source="./movie_ui/movie" ./movie_ui/manage.py test movie --traceback --debug-mode
+#     - python ./movie_ui/manage.py test movie
+    - coverage run --source="./movie_ui" ./movie_ui/manage.py test movie --traceback --debug-mode
     - coverage report

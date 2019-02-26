@@ -75,9 +75,9 @@ class MovieCrawlerTest(TestCase):
             'The.Boss.Baby.2017.1080p.WEB-DL.DD5.1.H264-FGT',
             'Arrival.2016.1080p.WEB-DL.DD5.1.H264-FGT'
         ]
-        self.assertListEqual(
-            mc.filenames,
-            expected_filenames,
+        self.assertSetEqual(
+            set(mc.filenames),
+            set(expected_filenames),
             f"Expected list of movies: {expected_filenames}, "
             f"but got {mc.filenames}"
         )
