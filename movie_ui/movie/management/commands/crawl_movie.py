@@ -9,10 +9,14 @@ class Command(BaseCommand):
         parser.add_argument(
             '-f',
             '--file',
-            required=True,
-            help='Input movie file name.'
+            help='Input mo  vie file name.'
+        )
+        parser.add_argument(
+            '-p',
+            '--path',
+            help='Input movie file path.'
         )
 
     def handle(self, *args, **kwargs):
-        crawler = MovieCrawler(kwargs['file'])
+        crawler = MovieCrawler(filename=kwargs['file'], path=kwargs['path'])
         crawler.crawl_movie()
