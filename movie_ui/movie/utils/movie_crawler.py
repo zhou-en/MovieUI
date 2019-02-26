@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 import json
+import re
 from os import listdir
 from os.path import isdir, join
 from contextlib import closing
@@ -73,11 +74,19 @@ class MovieCrawler(object):
         print(f"Total Movie: {len(filenames)}")
         return filenames
 
+    def chinese_characters_in_file_name(self, filename):
+        """
+        :return:
+        """
+        return re.findall('[\u4e00-\u9fff]+', filename)
+
+
     def parse_filename(self, filename):
         """
         Get movie name, year, resolution info from the given filename.
         return: title, year, resolution
         """
+        chinese = self.chinese_characters_in_file_name(filename)
         title_and_year = []
         split_filename = filename.split(".")
         # cater for space in filename
@@ -85,12 +94,13 @@ class MovieCrawler(object):
             split_filename = filename.split(" ")
 
         for item in split_filename:
-            item = item.replace("(", "").replace(")", "")
-            if item.isdigit() and len(item) == 4:
-                title_and_year.append(item)
-                break
-            else:
-                title_and_year.append(item)
+            if item not in chinese:
+                item = item.replace("(", "").replace(")", "")
+                if item.isdigit() and len(item) == 4:
+                    title_and_year.append(item)
+                    break
+                else:
+                    title_and_year.append(item)
 
         year = f"{title_and_year[-1]}"
         series = title_and_year[-2]
