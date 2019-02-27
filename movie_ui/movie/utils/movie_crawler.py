@@ -78,24 +78,33 @@ class MovieCrawler(object):
         """
         :return:
         """
+        print(f"Identify Chinese characters in {filename}")
         return re.findall('[\u4e00-\u9fff]+', filename)
 
+    def remove_noise_characters_from_filename(self, filename):
+        """
+        :return:
+        """
+        for item in ['(', ')', '[', ']']:
+            filename = filename.replace(item, ' ')
+        return filename
 
     def parse_filename(self, filename):
         """
         Get movie name, year, resolution info from the given filename.
         return: title, year, resolution
         """
+
+        filename = self.remove_noise_characters_from_filename(filename)
+        filename = filename.replace(" ", ".")
+        print(f"filename: {filename}")
         chinese = self.chinese_characters_in_file_name(filename)
+        print(f"Chinese characters found: {chinese}")
         title_and_year = []
         split_filename = filename.split(".")
-        # cater for space in filename
-        if " " in filename:
-            split_filename = filename.split(" ")
 
         for item in split_filename:
-            if item not in chinese:
-                item = item.replace("(", "").replace(")", "")
+            if item and item not in chinese:
                 if item.isdigit() and len(item) == 4:
                     title_and_year.append(item)
                     break
@@ -133,14 +142,14 @@ class MovieCrawler(object):
         """
         :return bs html
         """
-        search_title = f"{title} {series}" if series else f"{title}"
+        search_title = f"{title} {series}" if series else f"{'+'.join(title)}"
         url = (
                 f"http://www.imdb.com/search/title?title={search_title}&"
-                + f"title_type=feature&release_date="
+                + f"title_type=feature,video&release_date="
                 + f"{year}-01-01,{year}-12-31"
         )
         # logger.info("Get movie url from {}".format(url))
-        # logger.info("Searching for movie: {}".format(url))
+        print(f"Searching for movie: {url}")
         response = simple_get(url)
         return BeautifulSoup(response, "html.parser")
 
@@ -284,4 +293,5 @@ class MovieCrawler(object):
                     movie.save()
                 else:
                     print(f'Rating is still: [{movie.imdb_rating}]')
-        print(f"Following movies were not found on IMDB: {json.dumps(self.not_found, indent=4)}")
+        if self.not_found:
+            print(f"Following movies were not found on IMDB: {json.dumps(self.not_found, indent=4)}")
