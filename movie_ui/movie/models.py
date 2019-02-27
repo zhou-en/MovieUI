@@ -5,6 +5,9 @@ from datetime import datetime
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Movie(models.Model):
     title = models.CharField(max_length=256, blank=True, default='')
@@ -21,3 +24,6 @@ class Movie(models.Model):
     resolution = models.CharField(max_length=256, blank=True, default='')
     filename = models.CharField(max_length=256, unique=True)
     date_added = models.DateField(blank=True, default=datetime.now)
+
+    def __str__(self):
+        return self.title
