@@ -145,7 +145,7 @@ class MovieCrawler(object):
         search_title = f"{title} {series}" if series else f"{'+'.join(title)}"
         url = (
                 f"http://www.imdb.com/search/title?title={search_title}&"
-                + f"title_type=feature,video&release_date="
+                + f"title_type=feature,documentary,video&release_date="
                 + f"{year}-01-01,{year}-12-31"
         )
         # logger.info("Get movie url from {}".format(url))
