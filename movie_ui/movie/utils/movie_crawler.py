@@ -99,7 +99,8 @@ class MovieCrawler(object):
         filename = filename.replace(" ", ".")
         print(f"filename: {filename}")
         chinese = self.chinese_characters_in_file_name(filename)
-        print(f"Chinese characters found: {chinese}")
+        if chinese:
+            print(f"Chinese characters found: {chinese}")
         title_and_year = []
         split_filename = filename.split(".")
 
@@ -144,7 +145,7 @@ class MovieCrawler(object):
         """
         search_title = f"{title} {series}" if series else f"{'+'.join(title)}"
         url = (
-                f"http://www.imdb.com/search/title?title={search_title}&"
+                f"https://www.imdb.com/search/title?title={search_title}&"
                 + f"title_type=feature,documentary,video&release_date="
                 + f"{year}-01-01,{year}-12-31"
         )
@@ -196,8 +197,23 @@ class MovieCrawler(object):
         rating_div = soup.find("span", {"itemprop": "ratingValue"})
         rating_str = str(rating_div)
         return float(rating_str.replace("</span>", "").split(">")[-1])
-        # logger.info("Movie Rating: {}".format(rating))
-        # return rating
+
+    @staticmethod
+    def get_movie_trailer_by_url(movie_url, imdb_id):
+        """
+        Get movie trailer url
+        """
+        playlist_id = f"playlistId={imdb_id}"
+        trailer_href = None
+        print(f"Get movie trailer from: {movie_url}")
+        doc = simple_get(movie_url)
+        soup = BeautifulSoup(doc, "html.parser")
+        for ankor in soup.find_all("a", href=True):
+            if playlist_id in ankor.get("href", None) and \
+                    ankor.get("href", None).startswith("/video/imdb/"):
+                trailer_href = ankor.get("href")
+                print(f"Found trailer href: {trailer_href}")
+        return f"https://imdb.com/{trailer_href}"
 
     @staticmethod
     def save_genres(movie_data):
@@ -210,7 +226,7 @@ class MovieCrawler(object):
                 print(err)
                 continue
 
-    def save_movie(self, filename, movie_data, imdb_movie_url, imdb_id, imdb_rating):
+    def save_movie(self, filename, movie_data, imdb_movie_url, imdb_id, imdb_rating, trailer_url):
         """
         """
         homepage = (
@@ -223,12 +239,13 @@ class MovieCrawler(object):
             if imdb_rating
             else float(movie_data.get("vote_average", None))
         )
+        runtime = movie_data['runtime'] if movie_data.get('runtime', None) else 0
         try:
             Movie(
                 **{
                     "title": movie_data.get("title", None),
                     "release_date": movie_data.get("release_date", None),
-                    "runtime": movie_data.get("runtime", None),
+                    "runtime": runtime,
                     "poster_path": (
                         f"https://image.tmdb.org/t/p/w500"
                         f"{movie_data.get('poster_path', None)}"
@@ -238,7 +255,7 @@ class MovieCrawler(object):
                     "imdb_rating": rating,
                     "imdb_movie_url": imdb_movie_url,
                     "homepage": homepage,
-                    # 'trailer': self.
+                    'trailer': trailer_url,
                     # 'geners:
                     "resolution": self.get_resolution_from_filename(filename),
                     "filename": filename,
@@ -275,11 +292,15 @@ class MovieCrawler(object):
                 imdb_id = self.get_imdb_id_from_url(imdb_movie_url)
                 movie_data = self.get_movie_details_by_id(imdb_id)
                 imdb_rating = self.get_movie_rating_by_url(imdb_movie_url)
+                trailer_url = self.get_movie_trailer_by_url(imdb_movie_url, imdb_id)
                 print(json.dumps(movie_data, indent=4))
                 self.save_movie(
-                    filename=filename, movie_data=movie_data,
+                    filename=filename,
+                    movie_data=movie_data,
                     imdb_movie_url=imdb_movie_url,
-                    imdb_id=imdb_id, imdb_rating=imdb_rating
+                    imdb_id=imdb_id,
+                    imdb_rating=imdb_rating,
+                    trailer_url=trailer_url
                 )
             else:
                 movie = Movie.objects.filter(filename__startswith=f"{filename}")[0]

@@ -4,7 +4,7 @@ import DataProvider from "./DataProvider";
 import Table from "./Table";
 
 const App = () => (
-  <DataProvider endpoint="movie/"
+  <DataProvider endpoint="movie/?order_by=release_date&direction=asc"
                 render={data => <Table data={data} />} />
 );
 

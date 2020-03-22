@@ -18,11 +18,22 @@ const Table = ({ data }) =>
           </tr>
         </thead>
         <tbody>
-          {data.map(el => (
-            <tr key={el.id}>
-              {Object.entries(el).map(el => <td key={key(el)}>{el[1]}</td>)}
-            </tr>
-          ))}
+          {
+              data.map(el => (
+                <tr key={el.id}>
+                    <td>{el.title}</td>
+                    <td>{el.release_date}</td>
+                    <td>{el.imdb_id}</td>
+                    <td>{el.imdb_rating}</td>
+                    <td>
+                        <a href={el.imdb_movie_url}>{el.imdb_movie_url}</a>
+                    </td>
+                    <td>
+                        <a href={el.trailer}>{el.trailer}</a>
+                    </td>
+                </tr>
+              ))
+          }
         </tbody>
       </table>
     </div>
